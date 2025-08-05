@@ -1,0 +1,106 @@
+<!-- Navigation -->
+<nav class="mt-6">
+  <div class="px-4">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">General</p>
+    <ul class="space-y-1">
+      <li>
+        <a href="dashboard.html"
+           class="nav-link active flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+          <i class="fas fa-chart-pie mr-3 text-sm"></i>
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="tasks.html"
+           class="nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+          <i class="fas fa-tasks mr-3 text-sm"></i>
+          Tasks
+        </a>
+      </li>
+      <li>
+        <a href="apps.html" class="nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+          <i class="fas fa-th-large mr-3 text-sm"></i>
+          Apps
+        </a>
+      </li>
+      <li>
+        <a href="chats.html"
+           class="nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+          <i class="fas fa-comments mr-3 text-sm"></i>
+          Chats
+          <span class="ml-auto bg-primary text-white text-xs px-2 py-1 rounded-full">3</span>
+        </a>
+      </li>
+      <li>
+
+        <%= link_to users_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fas fa-users mr-3 text-sm"></i>
+          Users
+        <% end %>
+      </li>
+      <li>
+
+        <%= link_to roles_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fas fa-sitemap mr-3 text-sm"></i>
+          Roles
+        <% end %>
+      </li>
+    </ul>
+  </div>
+
+  <div class="px-4 mt-8">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Pages</p>
+    <ul class="space-y-1">
+      <li>
+        <%= link_to categories_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fas fa-bars mr-3 text-sm"></i>
+          Categories
+        <% end %>
+      </li>
+      <li>
+        <%= link_to products_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fas fa-th mr-3 text-sm"></i>
+          Products
+        <% end %>
+      </li>
+      <li>
+        <%= link_to colors_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fa fa-snowflake  mr-3 text-sm" aria-hidden="true"></i>
+          Colors
+        <% end %>
+      </li>
+      <li>
+        <%= link_to sizes_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fa fa-search-plus  mr-3 text-sm" aria-hidden="true"></i>
+          Sizes
+        <% end %>
+      </li>
+      <li>
+        <%= link_to orders_path, class: "nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg" do %>
+          <i class="fa fa-reorder  mr-3 text-sm" aria-hidden="true"></i>
+          Orders
+        <% end %>
+      </li>
+    </ul>
+  </div>
+
+  <div class="px-4 mt-8">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Other</p>
+    <ul class="space-y-1">
+      <li>
+        <a href="settings.html"
+           class="nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+          <i class="fas fa-cog mr-3 text-sm"></i>
+          Settings
+          <i class="fas fa-chevron-right ml-auto text-xs"></i>
+        </a>
+      </li>
+      <li>
+        <a href="help.html" class="nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+          <i class="fas fa-question-circle mr-3 text-sm"></i>
+          Help Center
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

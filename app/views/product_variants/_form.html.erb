@@ -1,0 +1,226 @@
+<%= form_with(model: [@product, @product_variant]) do |form| %>
+  <%= form.hidden_field :product_id, value: @product.id %>
+
+  <div class="mb-8">
+    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+      <%= link_to "Product", users_path, class: "hover:text-gray-700" %>
+      <i class="fas fa-chevron-right text-xs"></i>
+      <span class="text-gray-900"><%= @product_variant.persisted? ? "Product" : "Create" %> User</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= @product_variant.persisted? ? "Update" : "Create" %>
+          Product Variant</h1>
+        <p class="text-gray-600"><%= @product_variant.persisted? ? "Update properties of product ##{@product_variant.id}" : "Add a new variant to product" %></p>
+      </div>
+      <div class="flex items-center space-x-3">
+        <%= form.submit "#{@product_variant.persisted? ? "Update" : "Create"} Product Variant", class: "bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Form -->
+  <div class="space-y-8">
+    <% if @product_variant.errors.any? %>
+      <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <h2 class="font-semibold mb-2">Please fix the following errors:</h2>
+        <ul class="list-disc pl-5">
+          <% @product_variant.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Personal Information -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Variant Information</h2>
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= form.label :sku, "SKU *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :sku, placeholder: "Enter sku", class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" %>
+              </div>
+
+              <div>
+                <%= form.label :price, "Price *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.number_field :price, placeholder: "0.00", class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" %>
+              </div>
+            </div>
+            <div>
+              <div>
+                <%= form.label :stock, "Stock *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.number_field :stock, placeholder: "Enter stock", class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" %>
+              </div>
+            </div>
+            <div>
+              <%= form.label :color_id, "Color", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.select :color_id,
+                              options_from_collection_for_select(@colors, :id, :name, @product_variant.color_id),
+                              { include_blank: 'Select color' },
+                              class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              %>
+            </div>
+            <div>
+              <%= form.label :size_id, "Size", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.select :size_id,
+                              options_from_collection_for_select(@sizes, :id, :name, @product_variant.size_id),
+                              { include_blank: 'Select size' },
+                              class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Picture -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Product Picture</h2>
+          <div class="space-y-4">
+            <div class="flex items-center space-x-6">
+              <div class="flex-1">
+                <label id="upload-label"
+                       class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors block cursor-pointer">
+                  <div class="space-y-2" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt text-gray-400 text-2xl"></i>
+                    <div class="text-sm text-gray-600">
+                      <span class="text-primary font-medium">Click to upload</span> or drag and drop
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      PNG, JPG, GIF up to 2MB
+                    </div>
+                  </div>
+                  <%= form.file_field :image_url, class: "hidden", accept: "image/*", id: "productImage" %>
+                </label>
+              </div>
+            </div>
+            <!-- Image Preview -->
+            <div id="imagePreview" class="<%= @product_variant && @product_variant.image_url ? '' : 'hidden' %>">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Preview
+              </label>
+              <div class="relative inline-block">
+                <img id="previewImg" src="<%= @product_variant && @product_variant.image_url ? @product_variant.image_url : '' %>" alt="Product preview" class="max-w-full h-48 object-cover rounded-lg border border-gray-200">
+                <% unless @product_variant %>
+                  <button type="button" id="removeImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                    <i class="fas fa-times"></i>
+                  </button>
+                <% end %>
+              </div>
+              <div class="text-xs text-gray-500 mt-2">
+                <% if @product_variant %>
+                  Upload a new image to replace the current one
+                <% else %>
+                  Click the × button to remove or upload a new image to replace
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-between pt-6 border-t">
+      <%= link_to products_path, class: "text-gray-600 hover:text-gray-800 font-medium" do %>
+        ← Back to product list
+      <% end %>
+      <div class="flex items-center space-x-3">
+        <%= form.submit "#{@product_variant.persisted? ? "Update" : "Create"} Product", class: "bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('productImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removeImageBtn = document.getElementById('removeImage');
+
+        // Check if there's an existing image on page load
+        const hasExistingImage = previewImg.src && previewImg.src !== window.location.href;
+        const isEditMode = hasExistingImage; // If there's an existing image, we're likely in edit mode
+
+        if (hasExistingImage) {
+            imagePreview.classList.remove('hidden');
+        }
+
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary', 'bg-blue-50');
+        });
+
+        uploadArea.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary', 'bg-blue-50');
+        });
+
+        uploadArea.addEventListener('drop', function (e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary', 'bg-blue-50');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', function (e) {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Remove image button - use event delegation to handle clicks even when preview is hidden/shown
+        // Only add event listener if remove button exists (create mode only)
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.id === 'removeImage') {
+                e.preventDefault();
+                removeImage();
+            }
+        });
+
+        function handleFileUpload(file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            // Create file reader
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            // Only allow removing in create mode (when remove button exists)
+            const removeBtn = document.getElementById('removeImage');
+            if (removeBtn) {
+                previewImg.src = '';
+                imagePreview.classList.add('hidden');
+                fileInput.value = '';
+                console.log('Image removed'); // Debug log
+            }
+        }
+    });
+</script>

@@ -1,0 +1,602 @@
+<%= form_with(model: @order) do |form| %>
+
+  <div class="mb-8">
+    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+      <%= link_to "Orders", orders_path, class: "hover:text-gray-700" %>
+      <i class="fas fa-chevron-right text-xs"></i>
+      <span class="text-gray-900"><%= @order.persisted? ? "Update" : "Create" %> Order</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= @order.persisted? ? "Update" : "Create" %> Order</h1>
+        <p class="text-gray-600"><%= @order.persisted? ? "Update properties of order ##{@order.id}" : "Add a new order to the system" %></p>
+      </div>
+      <div class="flex items-center space-x-3">
+        <%= form.submit "#{@order.persisted? ? "Update" : "Create"} Order", class: "bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Form -->
+  <div class="space-y-8">
+    <% if @order.errors.any? %>
+      <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <h2 class="font-semibold mb-2">Please fix the following errors:</h2>
+        <ul class="list-disc pl-5">
+          <% @order.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Customer Selection -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Customer Information</h2>
+          <div class="space-y-4">
+            <div>
+              <%= form.label :user_id, "Select Customer *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <% if @order && @order.persisted? %>
+                <div class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-gray-700">
+                  <%= "#{@order.user.email} - #{@order.user.first_name} #{@order.user.last_name}" %>
+                </div>
+                <%= form.hidden_field :user_id %>
+              <% else %>
+                <%= form.select :user_id,
+                                options_from_collection_for_select(@users, :id,
+                                                                   Proc.new { |user| "#{user.email} - #{user.first_name} #{user.last_name}" },
+                                                                   @order.user_id),
+                                { prompt: "Choose a customer..." },
+                                { class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" } %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Order Items</h2>
+          <div id="orderItems" class="space-y-4">
+            <!-- Existing order items (from validation errors or existing order) -->
+            <% if @order && @order.order_items&.any? %>
+              <%= form.fields_for :order_items do |item_form| %>
+                <% order_item = item_form.object %>
+                <% item_index = item_form.index %>
+                <div class="existing-order-item border border-gray-100 rounded-lg p-4 bg-gray-50" data-index="<%= item_index %>">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-medium text-gray-900">Item <%= item_index + 1 %></h3>
+                    <% if @order.persisted? %>
+                      <span class="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">Read-only</span>
+                    <% else %>
+                      <span class="text-xs text-blue-500 bg-blue-100 px-2 py-1 rounded">Editable</span>
+                    <% end %>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Product Variant</label>
+                      <% if @order.persisted? && order_item.product_variant&.product && order_item.product_variant.size && order_item.product_variant.color %>
+                        <!-- Read-only for persisted orders with valid variants -->
+                        <div class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-gray-700">
+                          <%= "#{order_item.product_variant.product.name} - #{order_item.product_variant.size.name} / #{order_item.product_variant.color.name}" %>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                          SKU: <%= order_item.product_variant.sku %> | Price: $<%= order_item.price || order_item.product_variant.price %>
+                        </div>
+                        <%= item_form.hidden_field :product_variant_id %>
+                      <% else %>
+                        <!-- Editable for new orders or invalid variants -->
+                        <div class="mb-2">
+                          <%= item_form.select :product_variant_id,
+                                               [["Choose a product variant...", ""]] + @product_variants.map { |variant|
+                                                 [
+                                                   "#{variant.product.name} - #{variant.size.name} / #{variant.color.name} - $#{variant.price} (Stock: #{variant.stock})",
+                                                   variant.id,
+                                                   {
+                                                     "data-price" => variant.price,
+                                                     "data-stock" => variant.stock
+                                                   }
+                                                 ]
+                                               },
+                                               { selected: order_item.product_variant_id },
+                                               { class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent existing-variant-select",
+                                                 data: { item_index: item_index } } %>
+                          <%= item_form.hidden_field :price, class: "existing-item-price", data: { item_index: item_index } %>
+                          <div class="text-xs text-gray-500 mt-1" id="variant-details-<%= item_index %>">
+                            Select a product variant to see details
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                      <% if @order.persisted? && order_item.product_variant&.product && order_item.product_variant.size && order_item.product_variant.color %>
+                        <!-- Read-only for persisted orders -->
+                        <div class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-gray-700">
+                          <%= order_item.quantity %>
+                        </div>
+                        <%= item_form.hidden_field :quantity %>
+                      <% else %>
+                        <!-- Editable for new orders -->
+                        <%= item_form.number_field :quantity, min: 1, placeholder: "1",
+                                                   class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent existing-quantity-input",
+                                                   data: { item_index: item_index } %>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="mt-3 flex justify-between items-center">
+                    <div class="text-sm text-gray-600">
+                      <% price = order_item.price || 0 %>
+                      <% quantity = order_item.quantity || 0 %>
+                    </div>
+                    <div class="text-sm font-medium text-gray-900 flex gap-3">
+                      Total: $<span class="existing-item-total"><%= (price * quantity).round(2) %></span>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Separator for new items -->
+              <% unless @order.persisted? %>
+                <div class="border-t border-gray-200 pt-4">
+                  <h3 class="text-sm font-medium text-gray-700 mb-4">Add More Items</h3>
+                </div>
+              <% end %>
+            <% else %>
+              <!-- Order items will be added here dynamically -->
+            <% end %>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between">
+            <% if @order && @order.persisted? %>
+              <div class="text-sm text-gray-500">
+                <i class="fas fa-lock mr-1"></i>
+                Order items are locked for existing orders
+              </div>
+            <% else %>
+              <button type="button" id="addOrderItem" class="flex items-center space-x-2 text-primary hover:text-blue-700 font-medium">
+                <i class="fas fa-plus"></i>
+                <span>Add Product to Order</span>
+              </button>
+            <% end %>
+            <div class="text-lg font-semibold text-gray-900">
+              Items Total: $<span id="orderTotal">0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Shipping Information</h2>
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= form.label :street, "Street *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :street, placeholder: "Enter your street",
+                                    class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent #{@order && @order.persisted? ? 'bg-gray-100' : ''}",
+                                    readonly: @order && @order.persisted? %>
+              </div>
+
+              <div>
+                <%= form.label :city, "City *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :city, placeholder: "Enter city",
+                                    class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent #{@order && @order.persisted? ? 'bg-gray-100' : ''}",
+                                    readonly: @order && @order.persisted? %>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= form.label :state, "State*", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :state, placeholder: "Enter state",
+                                    class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent #{@order && @order.persisted? ? 'bg-gray-100' : ''}",
+                                    readonly: @order && @order.persisted? %>
+              </div>
+
+              <div>
+                <%= form.label :phone_number, "Phone Number*", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :phone_number, placeholder: "+1 (555) 123-4567",
+                                    class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent #{@order && @order.persisted? ? 'bg-gray-100' : ''}",
+                                    readonly: @order && @order.persisted? %>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <%= form.label :zip, "Zip", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :zip, placeholder: "Enter zip",
+                                    class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent #{@order && @order.persisted? ? 'bg-gray-100' : ''}",
+                                    readonly: @order && @order.persisted? %>
+              </div>
+              <div>
+                <%= form.label :country, "Country", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :country, placeholder: "Enter Country",
+                                    class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent #{@order && @order.persisted? ? 'bg-gray-100' : ''}",
+                                    readonly: @order && @order.persisted? %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Order Summary -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Order Summary</h2>
+          <div class="space-y-4">
+            <div class="flex justify-between">
+              <span class="text-lg font-semibold text-gray-900">Total</span>
+              <div class="text-lg font-semibold text-gray-900">
+                <% if @order && @order.persisted? %>
+                  $<span id="finalTotal"><%= @order.total_amount || "0.00" %></span>
+                  <%= form.hidden_field :total_amount %>
+                <% else %>
+                  $<%= form.number_field :total_amount, step: 0.01, readonly: true,
+                                         class: "inline-block w-20 text-right bg-transparent border-0 p-0 font-semibold text-lg focus:outline-none",
+                                         id: "finalTotal", value: "0.00" %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Status -->
+        <div class="bg-white rounded-xl shadow-sm border p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Order Status</h2>
+          <div class="space-y-4">
+            <div>
+              <%= form.label :status, "Status", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.select :status,
+                              [['Pending', 'pending'], ['Processing', 'processing'], ['Shipped', 'shipped'], ['Delivered', 'delivered'], ['Cancelled', 'cancelled']],
+                              { selected: @order.status || 'pending' },
+                              { class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" } %>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-between pt-6 border-t">
+      <%= link_to orders_path, class: "text-gray-600 hover:text-gray-800 font-medium" do %>
+        ← Back to Orders
+      <% end %>
+      <div class="flex items-center space-x-3">
+        <%= form.submit "#{@order.persisted? ? "Update" : "Create"} Order", class: "bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Order Item Template (hidden, used for JavaScript) -->
+<div id="orderItemTemplate" class="hidden">
+  <div class="order-item border border-gray-200 rounded-lg p-4" data-index="">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-medium text-gray-900">Item <span class="item-number"></span></h3>
+      <button type="button" class="remove-item text-red-500 hover:text-red-700">
+        <i class="fas fa-trash text-sm"></i>
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Product Variant *</label>
+        <select name="order[order_items_attributes][INDEX][product_variant_id]" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent product-variant-select">
+          <option value="">Choose a product variant...</option>
+          <% @product_variants.each do |variant| %>
+            <option value="<%= variant.id %>" data-price="<%= variant.price %>" data-stock="<%= variant.stock %>">
+              <%= "#{variant.product.name} - #{variant.size.name} / #{variant.color.name} - $#{variant.price} (Stock: #{variant.stock})" %>
+            </option>
+          <% end %>
+        </select>
+        <!-- Hidden field to store the price for this item -->
+        <input type="hidden" name="order[order_items_attributes][INDEX][price]" class="item-price">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+        <input type="number" name="order[order_items_attributes][INDEX][quantity]" min="1" placeholder="1"
+               class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent quantity-input">
+      </div>
+    </div>
+    <div class="mt-3 flex justify-between items-center">
+      <div class="text-sm text-gray-600">
+        <span class="item-details">Select a product variant to see details</span>
+      </div>
+      <div class="text-sm font-medium text-gray-900">
+        Total: $<span class="item-total">0.00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('turbo:load', function () {
+        // Calculate the correct starting index based on existing order items
+        const existingItems = document.querySelectorAll('.existing-order-item');
+        let itemIndex = existingItems.length;
+        const isExistingOrder = <%= @order && @order.persisted? ? 'true' : 'false' %>;
+
+        console.log(`Initializing with ${itemIndex} existing items, isExistingOrder: ${isExistingOrder}`);
+
+        // Add new order item (only for new orders)
+        const addOrderItemBtn = document.getElementById('addOrderItem');
+        if (addOrderItemBtn && !isExistingOrder) {
+            addOrderItemBtn.addEventListener('click', function () {
+                const template = document.getElementById('orderItemTemplate');
+                const newItem = template.querySelector('.order-item').cloneNode(true);
+
+                // Update the index in the form fields
+                newItem.setAttribute('data-index', itemIndex);
+                newItem.querySelector('.item-number').textContent = itemIndex + 1;
+
+                // Update form field names - ensure all fields use the same index
+                newItem.querySelectorAll('select, input').forEach(field => {
+                    if (field.name && field.name.includes('INDEX')) {
+                        field.name = field.name.replace(/INDEX/g, itemIndex);
+                        console.log(`Updated field name to: ${field.name}`);
+                    }
+                });
+
+                // Clear any previous values
+                newItem.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                });
+                newItem.querySelectorAll('input').forEach(input => {
+                    if (input.type !== 'hidden') {
+                        input.value = '';
+                    } else {
+                        input.value = '';
+                    }
+                });
+
+                // Reset details and total
+                const detailsSpan = newItem.querySelector('.item-details');
+                if (detailsSpan) {
+                    detailsSpan.textContent = 'Select a product variant to see details';
+                }
+                const totalSpan = newItem.querySelector('.item-total');
+                if (totalSpan) {
+                    totalSpan.textContent = '0.00';
+                }
+
+                document.getElementById('orderItems').appendChild(newItem);
+                itemIndex++;
+                updateItemNumbers();
+
+                console.log(`Added new order item with index ${itemIndex - 1}`);
+            });
+        }
+
+        // Remove order item (only for new orders)
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.remove-item') && !isExistingOrder) {
+                e.target.closest('.order-item').remove();
+                updateItemNumbers();
+                calculateTotal();
+            }
+        });
+
+        // Handle variant selection and quantity changes
+        document.addEventListener('change', function (e) {
+            // Handle new order items (only for new orders)
+            if (!isExistingOrder && e.target.classList.contains('product-variant-select')) {
+                const item = e.target.closest('.order-item');
+                const selectedOption = e.target.selectedOptions[0];
+                const detailsSpan = item.querySelector('.item-details');
+                const priceField = item.querySelector('.item-price');
+                const quantityInput = item.querySelector('.quantity-input');
+
+                if (selectedOption && selectedOption.value) {
+                    const price = selectedOption.dataset.price;
+                    const stock = selectedOption.dataset.stock;
+                    detailsSpan.textContent = `Price: $${price} | Available Stock: ${stock}`;
+
+                    // Update quantity input max value
+                    if (quantityInput) {
+                        quantityInput.setAttribute('max', stock);
+                    }
+
+                    // Set the price in hidden field
+                    if (priceField) {
+                        priceField.value = price;
+                        console.log(`Set price field value to: $${price} for variant ID: ${selectedOption.value}`);
+                    }
+                } else {
+                    detailsSpan.textContent = 'Select a product variant to see details';
+                    if (priceField) {
+                        priceField.value = '';
+                    }
+                    if (quantityInput) {
+                        quantityInput.removeAttribute('max');
+                    }
+                }
+
+                calculateItemTotal(item);
+            }
+
+            // Handle existing order items with invalid variants
+            if (e.target.classList.contains('existing-variant-select')) {
+                const itemIndex = e.target.dataset.itemIndex;
+                const selectedOption = e.target.selectedOptions[0];
+                const detailsSpan = document.getElementById(`variant-details-${itemIndex}`);
+                const priceField = document.querySelector(`[data-item-index="${itemIndex}"].existing-item-price`);
+
+                if (selectedOption && selectedOption.value) {
+                    // Get price and stock from data attributes, with fallback to option text parsing
+                    let price = selectedOption.dataset.price;
+                    let stock = selectedOption.dataset.stock;
+
+                    // If data attributes are not available, try to parse from option text
+                    if (!price || !stock) {
+                        const optionText = selectedOption.textContent;
+                        // Parse text like "Product Name - Size / Color - $99.99 (Stock: 25)"
+                        const priceMatch = optionText.match(/\$(\d+\.?\d*)/);
+                        const stockMatch = optionText.match(/Stock:\s*(\d+)/);
+
+                        if (priceMatch) price = priceMatch[1];
+                        if (stockMatch) stock = stockMatch[1];
+                    }
+
+                    // Ensure we have valid values
+                    price = price || '0.00';
+                    stock = stock || '0';
+
+                    detailsSpan.textContent = `Price: $${price} | Available Stock: ${stock}`;
+
+                    // Update quantity input max value
+                    const quantityInput = document.querySelector(`[data-item-index="${itemIndex}"].existing-quantity-input`);
+                    if (quantityInput) {
+                        quantityInput.setAttribute('max', stock);
+                    }
+
+                    // Set the price in hidden field
+                    if (priceField) {
+                        priceField.value = price;
+                    }
+
+                    console.log(`Updated variant for item ${itemIndex}: Price: $${price}, Stock: ${stock}`);
+                } else {
+                    detailsSpan.textContent = 'Select a product variant to see details';
+                    if (priceField) {
+                        priceField.value = '';
+                    }
+                }
+
+                calculateExistingItemTotal(itemIndex);
+            }
+
+            // Handle quantity changes for new items
+            if (!isExistingOrder && e.target.classList.contains('quantity-input')) {
+                const item = e.target.closest('.order-item');
+                calculateItemTotal(item);
+            }
+
+            // Handle quantity changes for existing items with invalid variants
+            if (e.target.classList.contains('existing-quantity-input')) {
+                const itemIndex = e.target.dataset.itemIndex;
+                calculateExistingItemTotal(itemIndex);
+            }
+        });
+
+        function updateItemNumbers() {
+            document.querySelectorAll('.order-item').forEach((item, index) => {
+                item.querySelector('.item-number').textContent = index + 1;
+            });
+        }
+
+        function calculateItemTotal(item) {
+            const select = item.querySelector('.product-variant-select');
+            const quantityInput = item.querySelector('.quantity-input');
+            const totalSpan = item.querySelector('.item-total');
+            const priceField = item.querySelector('.item-price');
+
+            if (select && quantityInput && totalSpan) {
+                const selectedOption = select.selectedOptions[0];
+                if (selectedOption && selectedOption.value && quantityInput.value) {
+                    const price = parseFloat(selectedOption.dataset.price || 0);
+                    const quantity = parseInt(quantityInput.value || 0);
+                    const total = price * quantity;
+                    totalSpan.textContent = total.toFixed(2);
+
+                    // Update the hidden price field
+                    if (priceField) {
+                        priceField.value = price;
+                    }
+
+                    console.log(`Item calculation: ${quantity} x $${price} = $${total.toFixed(2)}`);
+                } else {
+                    totalSpan.textContent = '0.00';
+                    if (priceField) {
+                        priceField.value = '';
+                    }
+                }
+            }
+
+            calculateTotal();
+        }
+
+        function calculateExistingItemTotal(itemIndex) {
+            const select = document.querySelector(`[data-item-index="${itemIndex}"].existing-variant-select`);
+            const quantityInput = document.querySelector(`[data-item-index="${itemIndex}"].existing-quantity-input`);
+            const totalSpan = document.querySelector(`.existing-order-item[data-index="${itemIndex}"] .existing-item-total`);
+            const priceField = document.querySelector(`[data-item-index="${itemIndex}"].existing-item-price`);
+
+            if (select && quantityInput && totalSpan) {
+                const selectedOption = select.selectedOptions[0];
+                if (selectedOption && selectedOption.value && quantityInput.value) {
+                    // Try to get price from hidden field first, then from data attribute
+                    let price = priceField ? parseFloat(priceField.value || 0) : 0;
+
+                    if (!price) {
+                        price = parseFloat(selectedOption.dataset.price || 0);
+                    }
+
+                    // If still no price, try parsing from option text
+                    if (!price) {
+                        const optionText = selectedOption.textContent;
+                        const priceMatch = optionText.match(/\$(\d+\.?\d*)/);
+                        price = priceMatch ? parseFloat(priceMatch[1]) : 0;
+                    }
+
+                    const quantity = parseInt(quantityInput.value || 0);
+                    const total = price * quantity;
+                    totalSpan.textContent = total.toFixed(2);
+
+                    console.log(`Calculated total for item ${itemIndex}: $${price} x ${quantity} = $${total.toFixed(2)}`);
+                } else {
+                    totalSpan.textContent = '0.00';
+                }
+            }
+
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let itemsTotal = 0;
+
+            // Add existing order items totals
+            document.querySelectorAll('.existing-item-total').forEach(span => {
+                itemsTotal += parseFloat(span.textContent || 0);
+            });
+
+            // Add new order items totals
+            document.querySelectorAll('.item-total').forEach(span => {
+                itemsTotal += parseFloat(span.textContent || 0);
+            });
+
+            // Update all the form fields
+            document.getElementById('orderTotal').textContent = itemsTotal.toFixed(2);
+            const totalField = document.getElementById('finalTotal');
+
+            if (totalField && totalField.tagName === 'INPUT') {
+                totalField.value = itemsTotal.toFixed(2);
+            }
+        }
+
+        // Calculate initial totals if editing an existing order
+        document.querySelectorAll('.order-item').forEach(item => {
+            calculateItemTotal(item);
+        });
+
+        // Initialize calculations for existing items from validation errors
+        document.querySelectorAll('.existing-order-item').forEach((item, index) => {
+            const select = item.querySelector('.existing-variant-select');
+            const quantityInput = item.querySelector('.existing-quantity-input');
+
+            if (select && quantityInput) {
+                // Trigger calculation for items that have values
+                if (select.value && quantityInput.value) {
+                    calculateExistingItemTotal(index);
+                }
+            }
+        });
+
+        // Initialize total calculation
+        calculateTotal();
+    });
+</script>
