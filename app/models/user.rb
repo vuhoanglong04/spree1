@@ -31,4 +31,8 @@ class User < ApplicationRecord
   def password_required?
     new_record? || password.present? || password_confirmation.present?
   end
+
+  def has_permission?(subject, action)
+    role.permissions.exists?(subject: subject, action: action)
+  end
 end

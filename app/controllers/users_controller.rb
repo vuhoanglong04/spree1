@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
-
+  before_action :authorize_user
   # GET /users or /users.json
   def index
     @users = User.with_deleted.all.page(params[:page]).per(5)
@@ -86,5 +86,9 @@ class UsersController < ApplicationController
     params.require(:user).permit(
       :first_name, :last_name, :phone_number, :email, :data_of_birth, :gender, :bio, :image_url, :password, :password_confirmation,
     )
+  end
+
+  def authorize_user
+    authorize current_user
   end
 end

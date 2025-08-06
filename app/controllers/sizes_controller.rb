@@ -76,4 +76,7 @@ class SizesController < ApplicationController
   def size_params
     params.require(:size).permit(:name)
   end
+  def authorize_user
+    authorize current_user
+  end
 end

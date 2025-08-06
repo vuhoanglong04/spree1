@@ -1,6 +1,6 @@
 class ProductsController < ApplicationController
   before_action :set_product, only: %i[ show edit update destroy ]
-
+  before_action :authorize_user
   # GET /products or /products.json
   def index
     @products = Product.with_deleted.all.page(params[:page]).per(5)
@@ -85,5 +85,8 @@ class ProductsController < ApplicationController
   # Only allow a list of trusted parameters through.
   def product_params
     params.require(:product).permit(:name, :brand, :description, :category_id, :image_url)
+  end
+  def authorize_user
+    authorize current_user
   end
 end

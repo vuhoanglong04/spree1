@@ -27,10 +27,9 @@
       <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
         <span class="text-sm font-medium text-gray-600">SN</span>
       </div>
-      <button
-        class="bg-secondary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90">
-        Download
-      </button>
+      <%= button_to destroy_user_session_path, method: :delete, class: "bg-secondary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90" do %>
+        Logout
+      <% end %>
     </div>
   </div>
 </header>

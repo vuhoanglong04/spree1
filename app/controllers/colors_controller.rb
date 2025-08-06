@@ -75,4 +75,7 @@ class ColorsController < ApplicationController
   def color_params
     params.require(:color).permit(:name, :hex_code)
   end
+  def authorize_user
+    authorize current_user
+  end
 end

@@ -78,4 +78,7 @@ class OrdersController < ApplicationController
                                   :zip, :country, :status, :total_amount,
                                   order_items_attributes: [:id, :product_variant_id, :quantity, :price])
   end
+  def authorize_user
+    authorize current_user
+  end
 end

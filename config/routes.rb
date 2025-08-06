@@ -50,5 +50,9 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "dashboard#index"
-  devise_for :users, path: 'auth'
+  devise_for :users, path: 'auth',
+             controllers: {
+               sessions: 'authentication/sessions',
+               registrations: 'authentication/registrations',
+             }
 end

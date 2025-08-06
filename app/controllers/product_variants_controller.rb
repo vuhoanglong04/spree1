@@ -122,4 +122,7 @@ class ProductVariantsController < ApplicationController
   def product_variant_params
     params.require(:product_variant).permit(:id, :product_id, :sku, :price, :stock, :color_id, :size_id, :image_url)
   end
+  def authorize_user
+    authorize current_user
+  end
 end
