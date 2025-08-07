@@ -2,7 +2,8 @@
 
 class Authentication::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
-  # layout false
+  layout "authentication"
+
 
   # GET /resource/sign_in
   # def new
@@ -15,20 +16,23 @@ class Authentication::SessionsController < Devise::SessionsController
 
     if resource.nil?
       flash[:alert] = "Email or password is incorrect"
-      redirect_to new_session_path(resource_name) and return
+      redirect_to new_session_path(resource_name), status: :see_other and return
     end
 
     if resource.locked_at.present?
       flash[:alert] = "Your account is locked"
-      redirect_to new_session_path(resource_name) and return
+      redirect_to new_session_path(resource_name), status: :see_other and return
+    end
+    unless resource.confirmed_at
+      flash[:alert] = "Please check your email to confirm your account"
+      redirect_to new_session_path(resource_name), status: :see_other and return
     end
     if resource.role == 1
       flash[:alert] = "You are not permitted"
-      redirect_to new_session_path(resource_name) and return
+      redirect_to new_session_path(resource_name), status: :see_other and return
     end
     set_flash_message!(:notice, :signed_in)
     sign_in(resource_name, resource)
-    UserNotifierMailer.send_signup_email(resource).deliver
     yield resource if block_given?
     respond_with resource, location: after_sign_in_path_for(resource)
   end

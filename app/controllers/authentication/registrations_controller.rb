@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Authentication::RegistrationsController < Devise::RegistrationsController
+  layout "authentication"
+
   before_action :configure_sign_up_params, only: [:create]
   # before_action :configure_account_update_params, only: [:update]
 
@@ -13,7 +15,6 @@ class Authentication::RegistrationsController < Devise::RegistrationsController
   def create
     build_resource(sign_up_params)
     resource.role_id = 2
-    resource.skip_confirmation!
     resource.save
     yield resource if block_given?
     if resource.persisted?
@@ -24,7 +25,8 @@ class Authentication::RegistrationsController < Devise::RegistrationsController
       else
         set_flash_message! :notice, :"signed_up_but_#{resource.inactive_message}"
         expire_data_after_sign_in!
-        respond_with resource, location: after_inactive_sign_up_path_for(resource)
+        flash[:alert] = "Please check your email to confirm your account"
+        redirect_to new_user_session_path
       end
     else
       flash[:alert] = "Please fill in all  the fields"
