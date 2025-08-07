@@ -1,5 +1,31 @@
-<p>Welcome <%= @email %>!</p>
+<!-- app/views/devise/mailer/confirmation_instructions.html.erb -->
 
-<p>You can confirm your account email through the link below:</p>
+<div style="font-family: sans-serif; background-color: #f8fafc; padding: 2rem; text-align: center;">
 
-<!--<p><%#= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token) %></p>-->
+  <h1 style="font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem;">
+    👋 Welcome <%= @resource.email %>!
+  </h1>
+
+  <p style="font-size: 1rem; color: #4b5563; margin-bottom: 2rem;">
+    Thank you for signing up. Please confirm your account by clicking the button below:
+  </p>
+
+  <a href="<%= user_confirmation_url(confirmation_token: @token) %>"
+     style="
+     display: inline-block;
+       padding: 0.75rem 1.5rem;
+       background-color: #3b82f6;
+       color: white;
+       text-decoration: none;
+       border-radius: 0.375rem;
+       font-weight: 600;
+       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     ">
+    ✅ Confirm My Account
+  </a>
+
+  <p style="margin-top: 2rem; font-size: 0.875rem; color: #6b7280;">
+    If you didn’t create an account, please ignore this email.
+  </p>
+
+</div>

@@ -54,5 +54,7 @@ Rails.application.routes.draw do
              controllers: {
                sessions: 'authentication/sessions',
                registrations: 'authentication/registrations',
+               confirmations: 'authentication/confirmations',
+               passwords: 'authentication/passwords',
              }
 end
