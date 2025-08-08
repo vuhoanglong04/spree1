@@ -1,4 +1,15 @@
 Rails.application.routes.draw do
+  # API
+  namespace :api do
+    namespace :v1 do
+      resources :products, only: [:index]
+    end
+    namespace :v2 do
+      resources :products, only: [:index]
+    end
+  end
+
+  #======END API========
   resources :roles do
     member do
       get :authorize
@@ -6,7 +17,6 @@ Rails.application.routes.draw do
     end
   end
   resources :orders
-
   resources :sizes do
     member do
       patch :restore

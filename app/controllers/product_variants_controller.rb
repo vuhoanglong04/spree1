@@ -78,10 +78,7 @@ class ProductVariantsController < ApplicationController
         end
         format.html { redirect_to product_product_variants_path, notice: "Product variant was successfully updated." }
       else
-        @product = Product.with_deleted.find(params[:product_id])
-        @sizes = Size.all
-        @colors = Color.all
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html { redirect_to :edit, status: :unprocessable_entity }
       end
     end
   end
