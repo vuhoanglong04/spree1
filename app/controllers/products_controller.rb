@@ -29,6 +29,9 @@ class ProductsController < ApplicationController
         url = S3UploadService.upload(file: product_params[:image_url], folder: "products")
         @product.image_url = url
         @product.save
+        default_variant = ProductVariant.new(product_id: @product.id, stock: params[:product][:stock], price: params[:product][:price], sku: params[:product][:sku], image_url: url)
+        default_variant.default_variant_flag = true
+        default_variant.save!
         format.html { redirect_to products_path, notice: "Product was successfully created." }
         format.json { render :show, status: :created, location: @product }
       else
@@ -86,6 +89,7 @@ class ProductsController < ApplicationController
   def product_params
     params.require(:product).permit(:name, :brand, :description, :category_id, :image_url)
   end
+
   def authorize_user
     authorize current_user
   end

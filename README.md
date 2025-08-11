@@ -9,7 +9,7 @@ A modern eCommerce web application built on **Ruby on Rails 8.0.2** and **Spree*
 ## Features Table
 
 | Feature Category           | Description                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+|----------------------------|------------------------------------------------------------------------------------------------------|
 | **Product Catalog**        | Manage products, images, variants, and categories via admin interface.                               |
 | **Authentication**         | Devise-based secure login/logout/registration with **OmniAuth** for social login (Google, Facebook). |
 | **Authorization (RBAC)**   | Role-based access control with **Pundit** (`Admin`, `Customer`, etc.).                               |
@@ -22,7 +22,7 @@ A modern eCommerce web application built on **Ruby on Rails 8.0.2** and **Spree*
 | **Cart & Checkout**        | Persistent cart, add/remove products, update quantities, complete checkout.                          |
 | **Promotions**             | Support for discount codes and timed sales events.                                                   |
 | **Turbo/Hotwire UI**       | Real-time cart updates and UX interactions using Turbo Frames and Turbo Streams.                     |
-| **Email with SendGrid**    | **Transactional emails** (order confirmation, password reset) sent via **SendGrid API**.             |
+| **Email with Smtp**        | **Transactional emails** (order confirmation, password reset) sent via **Smtp API**.                 |
 | **Background Jobs**        | Background processing using **Sidekiq** for emails, file processing, search indexing, etc.           |
 | **Social Login (OAuth)**   | Allow users to log in using **Google** or **Facebook** via **OmniAuth**.                             |
 | **Chat Notifications**     | Send system alerts or task messages to **Chatwork rooms** using the **`chatwork` gem**.              |             |
@@ -33,7 +33,7 @@ A modern eCommerce web application built on **Ruby on Rails 8.0.2** and **Spree*
 ## Technical Stack
 
 | Layer                  | Tool/Library                             |
-| ---------------------- | ---------------------------------------- |
+| ---------------------- |------------------------------------------|
 | **Backend**            | Ruby on Rails 8.0.2, Ruby 3.2+           |
 | **Frontend**           | Tailwind CSS, Hotwire (Turbo + Stimulus) |
 | **Search**             | Elasticsearch 8.x                        |
@@ -41,7 +41,7 @@ A modern eCommerce web application built on **Ruby on Rails 8.0.2** and **Spree*
 | **Uploads**            | ActiveStorage + Amazon S3                |
 | **Authentication**     | Devise + OmniAuth                        |
 | **Authorization**      | Pundit                                   |
-| **Email**              | SendGrid                                 |
+| **Email**              | SMTP                                      |
 | **Payments**           | Stripe                                   |
 | **Background Jobs**    | Sidekiq + Redis                          |
 | **Chat Notifications** | Chatwork gem                             |
@@ -57,7 +57,7 @@ A modern eCommerce web application built on **Ruby on Rails 8.0.2** and **Spree*
 * ✅ Redis installed and running (used by Sidekiq + caching)
 * ✅ Elasticsearch running (with model indexing setup)
 * ✅ AWS S3 credentials stored in `credentials.yml.enc`
-* ✅ SendGrid API key set in Rails credentials
+* ✅ SMTP API key set in Rails credentials
 * ✅ Stripe keys stored in environment/config
 * ✅ OmniAuth configured for **Google** and **Facebook** login
 * ✅ Chatwork API token stored in Rails credentials (`CHATWORK_API_TOKEN`)
@@ -66,26 +66,26 @@ A modern eCommerce web application built on **Ruby on Rails 8.0.2** and **Spree*
 
 ## Time Estimates
 
-| Task                                | Hours           |
-| ----------------------------------- | --------------- |
-| Spree + Rails base setup            | 3               |
-| Auth (Devise) & Roles (Pundit)      | 4               |
-| Social login (OmniAuth)             | 3               |
-| Admin dashboard + Product CRUD      | 5               |
-| Elasticsearch setup                 | 4               |
-| Redis caching                       | 3               |
-| AWS S3 upload                       | 2               |
-| Cart & checkout logic               | 5               |
-| Stripe integration                  | 4               |
-| Background jobs with Sidekiq        | 3               |
-| Email config (SendGrid) + templates | 3               |
-| Chatwork notification integration   | 2               |
-| Tailwind UI & layout                | 4               |
-| Remove tax from backend + views     | 2               |
+| Task                              | Hours           |
+| --------------------------------- | --------------- |
+| Spree + Rails base setup          | 3               |
+| Auth (Devise) & Roles (Pundit)    | 4               |
+| Social login (OmniAuth)           | 3               |
+| Admin dashboard + Product CRUD    | 5               |
+| Elasticsearch setup               | 4               |
+| Redis caching                     | 3               |
+| AWS S3 upload                     | 2               |
+| Cart & checkout logic             | 5               |
+| Stripe integration                | 4               |
+| Background jobs with Sidekiq      | 3               |
+| Email config  + templates | 3               |
+| Chatwork notification integration | 2               |
+| Tailwind UI & layout              | 4               |
+| Remove tax from backend + views   | 2               |
 | Turbo Streams/Stimulus enhancements | 4               |
-| Testing with RSpec                  | 4               |
-| Deployment config                   | 2               |
-| **Total**                           | **58–63 hours** |
+| Testing with RSpec                | 4               |
+| Deployment config                 | 2               |
+| **Total**                         | **58–63 hours** |
 
 ---
 

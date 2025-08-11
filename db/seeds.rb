@@ -8,7 +8,7 @@
 # end
 #
 # # === Permission ===
-# actions = %w[view create update delete restore force_delete authorize]
+# actions = %w[index create update delete restore force_delete authorize]
 # subjects = %w[users products categories]
 # permissions = subjects.product(actions).map { |subject, action| { subject: subject, action: action } }
 # Permission.create!(permissions)
@@ -19,8 +19,8 @@
 # user = Role.find_by(name: "User")
 #
 # Permission.find_each { |perm| RolePermission.find_or_create_by!(role: admin, permission: perm) }
-# Permission.where(action: %w[view update create]).find_each { |perm| RolePermission.find_or_create_by!(role: staff, permission: perm) }
-# Permission.where(action: "view").find_each { |perm| RolePermission.find_or_create_by!(role: user, permission: perm) }
+# Permission.where(action: %w[index update create]).find_each { |perm| RolePermission.find_or_create_by!(role: staff, permission: perm) }
+# Permission.where(action: "index").find_each { |perm| RolePermission.find_or_create_by!(role: user, permission: perm) }
 #
 # # === Users ===
 # 20.times do
@@ -28,7 +28,7 @@
 #     first_name: Faker::Name.first_name,
 #     last_name: Faker::Name.last_name,
 #     email: Faker::Internet.unique.email,
-#     password: Faker::Internet.password(min_length: 8),
+#     password: "123456",
 #     phone_number: Faker::PhoneNumber.phone_number,
 #     gender: %w[male female].sample,
 #     bio: Faker::Lorem.sentence,
@@ -61,7 +61,7 @@
 # # === Colors ===
 # 10.times do
 #   Color.create!(
-#     name: Faker::Color.color_name,
+#     name: Faker::Color.color_name + rand(999).to_s,
 #     hex_code: Faker::Color.hex_color
 #   )
 # end
@@ -79,7 +79,8 @@
 #     color_id: Color.pluck(:id).sample,
 #     price: Faker::Commerce.price(range: 10.0..100.0),
 #     stock: rand(10..100),
-#     sku: Faker::Alphanumeric.alphanumeric(number: 10).upcase
+#     sku: Faker::Alphanumeric.alphanumeric(number: 10).upcase,
+#     image_url: Faker::Avatar.image,
 #   )
 # end
 #
@@ -98,7 +99,7 @@
 #     zip: Faker::Address.zip_code,
 #     country: Faker::Address.country,
 #     phone_number: Faker::PhoneNumber.phone_number
-#   )
+#   )long@cc.cc
 # end
 #
 # # === Order Items ===
@@ -115,16 +116,16 @@
 #     price: variant.price * quantity # <== dùng 'price', không 'unit_price'
 #   )
 # end
-# User.create!(
-#   first_name: Faker::Name.first_name,
-#   last_name: Faker::Name.last_name,
-#   email: "long@cc.cc",
-#   password: "123456",
-#   phone_number: Faker::PhoneNumber.phone_number,
-#   gender: %w[male female].sample,
-#   bio: Faker::Lorem.sentence,
-#   confirmed_at: Time.now,
-#   role_id: Role.pluck(:id).sample,
-#   image_url: Faker::Avatar.image,
-#   date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65)
-# )
+User.create!(
+  first_name: Faker::Name.first_name,
+  last_name: Faker::Name.last_name,
+  email: "long@cc.cc",
+  password: "123456",
+  phone_number: Faker::PhoneNumber.phone_number,
+  gender: %w[male female].sample,
+  bio: Faker::Lorem.sentence,
+  confirmed_at: Time.now,
+  role_id: Role.pluck(:id).sample,
+  image_url: Faker::Avatar.image,
+  date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65)
+)

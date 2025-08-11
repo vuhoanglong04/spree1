@@ -28,6 +28,7 @@ class User < ApplicationRecord
   validates :image_url, presence: true, on: :create
   validates :password, confirmation: true, length: { within: Devise.password_length }, on: :create
 
+  # @return [TrueClass, FalseClass]
   def password_required?
     new_record? || password.present? || password_confirmation.present?
   end

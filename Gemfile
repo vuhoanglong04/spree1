@@ -81,3 +81,5 @@ gem 'pundit', '~> 2.5'
 gem "importmap-rails"
 gem 'sendgrid-ruby'
 gem 'dotenv-rails'
+gem 'active_model_serializers'
+
