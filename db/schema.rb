@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_081337) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_11_015543) do
   create_table "categories", force: :cascade do |t|
     t.string "name"
     t.datetime "deleted_at"
@@ -181,6 +181,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_081337) do
     t.index ["role_id"], name: "index_users_on_role_id"
   end
 
+  create_table "wish_lists", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_wish_lists_on_product_id"
+    t.index ["user_id"], name: "index_wish_lists_on_user_id"
+  end
+
   add_foreign_key "categories", "categories", column: "parent_id"
   add_foreign_key "messages", "users"
   add_foreign_key "order_items", "orders"
@@ -194,4 +203,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_081337) do
   add_foreign_key "products", "categories"
   add_foreign_key "role_permissions", "permissions"
   add_foreign_key "role_permissions", "roles"
+  add_foreign_key "wish_lists", "products"
+  add_foreign_key "wish_lists", "users"
 end
