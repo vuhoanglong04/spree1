@@ -2,6 +2,7 @@ class User < ApplicationRecord
 
   # Relationship
   belongs_to :role
+  has_many :jwt_refresh_tokens, dependent: :destroy
   # Nested Attribute
 
   # Soft Delete
@@ -14,9 +15,9 @@ class User < ApplicationRecord
          :rememberable,
          :validatable,
          :trackable,
-         :confirmable
-  # :jwt_authenticatable,
-  # jwt_revocation_strategy : JwtDenylist
+         :confirmable,
+         :jwt_authenticatable,
+         jwt_revocation_strategy: JwtDenyList
 
   # Validation
   validates :first_name, presence: true

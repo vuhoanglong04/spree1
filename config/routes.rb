@@ -3,6 +3,8 @@ Rails.application.routes.draw do
   # API
   namespace :api do
     namespace :v1 do
+      post "auth/login", to: "authentication#login"
+      post "auth/checkToken", to: "authentication#checkToken"
       resources :products, only: [:index, :show]
       resources :categories, only: [:index, :show]
       resources :wish_lists, only: [:index]
