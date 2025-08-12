@@ -82,4 +82,5 @@ gem "importmap-rails"
 gem 'sendgrid-ruby'
 gem 'dotenv-rails'
 gem 'active_model_serializers'
-
+gem 'stripe'
+gem 'stripe_event'

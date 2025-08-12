@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_11_015543) do
   create_table "categories", force: :cascade do |t|
     t.string "name"
     t.datetime "deleted_at"
@@ -26,26 +26,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "jwt_deny_lists", force: :cascade do |t|
-    t.string "token"
-    t.datetime "expired_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["token"], name: "index_jwt_deny_lists_on_token"
-    t.index ["user_id"], name: "index_jwt_deny_lists_on_user_id"
-  end
-
-  create_table "jwt_refresh_tokens", force: :cascade do |t|
-    t.string "token"
-    t.datetime "expired_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["token"], name: "index_jwt_refresh_tokens_on_token"
-    t.index ["user_id"], name: "index_jwt_refresh_tokens_on_user_id"
   end
 
   create_table "messages", force: :cascade do |t|
