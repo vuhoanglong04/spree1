@@ -1,4 +1,6 @@
 class Api::V1::AuthenticationController < Api::BaseController
+  skip_before_action :authenticate_api, only: [:login]
+
   # POST api/v1/auth/login
   def login
     LoginService.new(email: params[:email], password: params[:password]) # Validation

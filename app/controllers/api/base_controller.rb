@@ -1,5 +1,5 @@
 class Api::BaseController < ActionController::API
-  before_action :authenticate_api, except: [:login, :refresh]
+  before_action :authenticate_api
   include ResponseHandler
   include ExceptionHandler
 
