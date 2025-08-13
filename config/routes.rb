@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       post "auth/logout", to: "authentication#logout"
       post "auth/refresh", to: "authentication#refresh"
       get "auth/testToken", to: "authentication#testToken"
+      get "payment", to: "payment#create"
       resources :products, only: [:index, :show]
       resources :categories, only: [:index, :show]
       resources :wish_lists, only: [:index]
