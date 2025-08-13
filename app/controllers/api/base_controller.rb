@@ -10,6 +10,8 @@ class Api::BaseController < ActionController::API
     payload = Warden::JWTAuth::TokenDecoder.new.call(token)
     jti = payload['jti']
 
-    raise JWT::ExpiredSignature if JwtDenyList.exists?(jti: jti)
+    if JwtDenyList.exists?(jti: jti)
+      raise AuthenticationError, "Token is invalid"
+    end
   end
 end

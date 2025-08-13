@@ -1,5 +1,5 @@
 class Api::V1::AuthenticationController < Api::BaseController
-  skip_before_action :authenticate_api, only: [:login]
+  skip_before_action :authenticate_api, only: [:login , :refresh]
 
   # POST api/v1/auth/login
   def login
@@ -19,7 +19,7 @@ class Api::V1::AuthenticationController < Api::BaseController
     token = request.headers['Authorization']&.split(' ')&.last
     payload = Warden::JWTAuth::TokenDecoder.new.call(token)
     jti = payload['jti']
-    JwtDenyList.create!(jti: jti, expired_at: payload['exp'])
+    JwtDenyList.create!(jti: jti, exp: payload['exp'])
     sign_out(current_user)
     render_response(status: 200, message: "Logout successful")
   end
@@ -40,6 +40,5 @@ class Api::V1::AuthenticationController < Api::BaseController
 
   def testToken
     render_response(status: 200, message: "OK", data: "KOKOKOK")
-
   end
 end
