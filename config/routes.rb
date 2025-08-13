@@ -3,6 +3,10 @@ Rails.application.routes.draw do
   # API
   namespace :api do
     namespace :v1 do
+      post "auth/login", to: "authentication#login"
+      post "auth/logout", to: "authentication#logout"
+      post "auth/refresh", to: "authentication#refresh"
+      get "auth/testToken", to: "authentication#testToken"
       resources :products, only: [:index, :show]
       resources :categories, only: [:index, :show]
       resources :wish_lists, only: [:index]

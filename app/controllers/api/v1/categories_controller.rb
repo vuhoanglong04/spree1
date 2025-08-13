@@ -1,7 +1,6 @@
 class Api::V1::CategoriesController < Api::BaseController
   def index
     categories = Category.without_deleted.all.page(params[:page]).per(5)
-
     render_response(data: ActiveModelSerializers::SerializableResource.new(categories, each_serializer: CategorySerializer),
                     message: "Get all categories successfully",
                     status: 200,

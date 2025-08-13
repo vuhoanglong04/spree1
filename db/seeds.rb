@@ -1,4 +1,4 @@
-# db/seeds.rb
+# # db/seeds.rb
 
 require 'faker'
 
@@ -23,6 +23,19 @@ Permission.where(action: %w[index update create]).find_each { |perm| RolePermiss
 Permission.where(action: "index").find_each { |perm| RolePermission.find_or_create_by!(role: user, permission: perm) }
 
 # === Users ===
+User.create!(
+  first_name: Faker::Name.first_name,
+  last_name: Faker::Name.last_name,
+  email: "longvulinhhoang@gmail.com",
+  password: "123456",
+  phone_number: Faker::PhoneNumber.phone_number,
+  gender: %w[male female].sample,
+  bio: Faker::Lorem.sentence,
+  confirmed_at: Time.now,
+  role_id: Role.pluck(:id).sample,
+  image_url: Faker::Avatar.image,
+  date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65),
+  )
 20.times do
   User.create!(
     first_name: Faker::Name.first_name,
@@ -116,19 +129,7 @@ end
     price: variant.price * quantity # <== dùng 'price', không 'unit_price'
   )
 end
-User.create!(
-  first_name: Faker::Name.first_name,
-  last_name: Faker::Name.last_name,
-  email: "long@cc.cc",
-  password: "123456",
-  phone_number: Faker::PhoneNumber.phone_number,
-  gender: %w[male female].sample,
-  bio: Faker::Lorem.sentence,
-  confirmed_at: Time.now,
-  role_id: Role.pluck(:id).sample,
-  image_url: Faker::Avatar.image,
-  date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65),
-)
+
 10.times do
   WishList.create!([
                      {
@@ -137,3 +138,4 @@ User.create!(
                      }
                    ])
 end
+

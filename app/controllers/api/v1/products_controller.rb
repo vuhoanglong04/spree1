@@ -1,4 +1,6 @@
 class Api::V1::ProductsController < Api::BaseController
+  skip_before_action :authenticate_api, only: [:index]
+
   def index
     products = Product.without_deleted.all.page(params[:page]).per(5)
 
