@@ -30,5 +30,9 @@ module ExceptionHandler
     rescue_from ActiveModel::ValidationError do |e|
       render_response(message: "Validation failed", errors: e.model.errors.full_messages, status: :unprocessable_entity)
     end
+
+    rescue_from JWT::ExpiredSignature, JWT::VerificationError, JWT::DecodeError do
+      render_response(message: "Unauthorized", status: :unauthorized)
+    end
   end
 end

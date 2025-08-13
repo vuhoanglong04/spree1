@@ -315,9 +315,7 @@ Devise.setup do |config|
     jwt.dispatch_requests = [
       ['POST', %r{^/api/v1/auth/login$}]
     ]
-    jwt.revocation_requests = [
-      ['DELETE', %r{^/api/v1/auth/logout$}]
-    ]
+    jwt.revocation_requests = [['POST', %r{^/api/v1/auth/logout$}]]
     jwt.expiration_time = 15.minutes
     jwt.request_formats = {
       user: [:json] # bắt buộc nếu bạn đang dùng API JSON

@@ -11,11 +11,10 @@ class JwtRefreshToken < ApplicationRecord
   private
 
   def generate_token
-    self.jti = SecureRandom.uuid
     self.token = SecureRandom.hex(64)
   end
 
   def set_expiration
-    self.exp = 30.days.from_now
+    self.expired_at = 7.days.from_now
   end
 end
