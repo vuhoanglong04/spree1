@@ -1,10 +1,11 @@
 class Category < ApplicationRecord
   # Relationship
   has_many :products
-  has_many :children, class_name: 'Category', foreign_key: 'parent_id' #use in serializer
+  has_many :children, class_name: 'Category', foreign_key: 'parent_id' # use in serializer
   # Soft Delete
   acts_as_paranoid
 
   # Validation
   validates :name, presence: true
+  validates :image_url, presence: true, on: :create
 end

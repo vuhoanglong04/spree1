@@ -10,6 +10,7 @@ Rails.application.routes.draw do
       post "payment", to: "payment#create"
       post 'payment/webhook', to: 'payment_webhook#receive'
 
+      resources :home, only: [:index]
       resources :products, only: [:index, :show]
       resources :categories, only: [:index, :show]
       resources :wish_lists, only: [:index]
