@@ -7,10 +7,13 @@ Rails.application.routes.draw do
       post "auth/logout", to: "authentication#logout"
       post "auth/refresh", to: "authentication#refresh"
       get "auth/testToken", to: "authentication#testToken"
-      get "payment", to: "payment#create"
+      post "payment", to: "payment#create"
+      post 'payment/webhook', to: 'payment_webhook#receive'
+
       resources :products, only: [:index, :show]
       resources :categories, only: [:index, :show]
       resources :wish_lists, only: [:index]
+      resources :orders, only: [:index, :create, :update, :show]
     end
     # namespace :v2 do
     #   resources :products, only: [:index]

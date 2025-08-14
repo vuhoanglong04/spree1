@@ -96,13 +96,41 @@ end
     image_url: Faker::Avatar.image,
   )
 end
+# db/seeds.rb
+users = User.pluck(:id)
+variants = ProductVariant.includes(:color, :product) # eager load associations
 
-# === Orders ===
 10.times do
+  items_count = rand(1..5)
+  order_items_attributes = []
+  total_amount = 0
+
+  items_count.times do
+    variant = variants.sample
+    quantity = rand(1..5)
+    price = variant.price * quantity
+
+    detail_data = {
+      color: variant.color&.name,
+      size: variant.size&.name,
+      image_url: variant.image_url,
+      product_name: variant.product&.name
+    }
+
+    order_items_attributes << {
+      product_variant_id: variant.id,
+      quantity: quantity,
+      price: price,
+      detail: detail_data.to_json
+    }
+
+    total_amount += price
+  end
+
   Order.create!(
-    user_id: User.pluck(:id).sample,
+    user_id: users.sample,
     status: %w[pending processing shipped delivered cancelled].sample,
-    total_amount: Faker::Commerce.price(range: 50.0..1000.0),
+    total_amount: total_amount,
     stripe_payment_id: Faker::Alphanumeric.alphanumeric(number: 20),
     created_at: Faker::Time.backward(days: 30),
     updated_at: Time.current,
@@ -111,22 +139,8 @@ end
     state: Faker::Address.state,
     zip: Faker::Address.zip_code,
     country: Faker::Address.country,
-    phone_number: Faker::PhoneNumber.phone_number
-  )
-end
-
-# === Order Items ===
-10.times do
-  order_id = Order.pluck(:id).sample
-  variant = ProductVariant.find_by(id: ProductVariant.pluck(:id).sample)
-  next if order_id.nil? || variant.nil?
-
-  quantity = rand(1..5)
-  OrderItem.create!(
-    order_id: order_id,
-    product_variant_id: variant.id,
-    quantity: quantity,
-    price: variant.price * quantity # <== dùng 'price', không 'unit_price'
+    phone_number: Faker::PhoneNumber.phone_number,
+    order_items_attributes: order_items_attributes
   )
 end
 

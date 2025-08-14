@@ -19,15 +19,27 @@ class Order < ApplicationRecord
   def must_have_at_least_one_order_item
     valid_items = order_items.reject(&:marked_for_destruction?)
 
-    if valid_items.empty?
-      errors.add(:order_items, "must contain at least one item")
-    end
+    return errors.add(:order_items, "must contain at least one item") if valid_items.empty?
 
-    # Optional: check that each valid item has required fields
     valid_items.each_with_index do |item, index|
-      if item.product_variant_id.blank? || item.quantity.blank? || item.price.blank?
-        errors.add(:order_items, "item ##{index + 1} is incomplete")
-      end
+      validate_item_presence(item, index)
+      validate_item_stock(item, index)
+    end
+  end
+
+  private
+
+  def validate_item_presence(item, index)
+    if item.product_variant_id.blank? || item.quantity.blank? || item.price.blank?
+      errors.add(:order_items, "item ##{index + 1} is incomplete")
+    end
+  end
+
+  def validate_item_stock(item, index)
+    return if item.product_variant.blank? || item.quantity.blank?
+
+    if item.product_variant.stock < item.quantity
+      errors.add(:order_items, "item ##{index + 1} quantity (#{item.quantity}) exceeds available stock (#{item.product_variant.stock})")
     end
   end
 end

@@ -9,19 +9,18 @@ module ExceptionHandler
     end
 
     rescue_from ActiveRecord::RecordNotFound do |e|
-      render_response(errors: e.record.errors.full_messages, status: :not_found)
+      render_response(errors: e.message, status: :not_found)
     end
 
     rescue_from ActiveRecord::RecordInvalid do |e|
+      error_messages =
+        if e.record
+          e.record.errors.full_messages
+        else
+          [e.message]
+        end
       render_response(
-        errors: e.message,
-        message: 'Validation failed',
-        status: :unprocessable_entity
-      )
-    end
-    rescue_from ActiveRecord::RecordInvalid do |e|
-      render_response(
-        errors: e.message,
+        errors: error_messages,
         message: 'Validation failed',
         status: :unprocessable_entity
       )
