@@ -77,10 +77,18 @@ gem "kaminari", "~> 1.2"
 gem "aws-sdk-s3", "~> 1.194"
 
 gem "prism", "~> 1.4"
+
 gem 'pundit', '~> 2.5'
+
 gem "importmap-rails"
+
 gem 'sendgrid-ruby'
+
 gem 'dotenv-rails'
+
 gem 'active_model_serializers'
+
+
 gem 'stripe'
+
 gem 'stripe_event'

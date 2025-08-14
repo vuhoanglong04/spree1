@@ -7,6 +7,5 @@ class DropTableAddresses < ActiveRecord::Migration[8.0]
     add_column :orders, :country, :string
     add_column :orders, :phone_number, :string
     change_column_null :orders, :user_id, true
-
   end
 end
