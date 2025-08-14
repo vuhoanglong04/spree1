@@ -35,7 +35,7 @@ User.create!(
   role_id: Role.pluck(:id).sample,
   image_url: Faker::Avatar.image,
   date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65),
-  )
+)
 20.times do
   User.create!(
     first_name: Faker::Name.first_name,
@@ -56,6 +56,7 @@ end
 10.times do
   Category.create!(
     name: Faker::Commerce.department(max: 1, fixed_amount: true),
+    image_url: Faker::Avatar.image,
     parent_id: Category.pluck(:id).sample
   )
 end
