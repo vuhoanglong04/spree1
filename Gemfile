@@ -74,7 +74,7 @@ gem "faker", "~> 3.5"
 
 gem "kaminari", "~> 1.2"
 
-gem "aws-sdk-s3", "~> 1.194"
+gem "aws-sdk-s3", "~> 1.196"
 
 gem "prism", "~> 1.4"
 
