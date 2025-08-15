@@ -68,7 +68,7 @@ end
     description: Faker::Lorem.paragraph,
     brand: Faker::Company.name,
     category_id: Category.pluck(:id).sample,
-    image_url: Faker::LoremFlickr.image(size: "300x300", search_terms: ['product']) # <== thêm image_url
+    image_url: Faker::Avatar.image,
   )
 end
 

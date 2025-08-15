@@ -92,3 +92,5 @@ gem 'active_model_serializers'
 gem 'stripe'
 
 gem 'stripe_event'
+
+gem 'rack-cors', require: 'rack/cors'
