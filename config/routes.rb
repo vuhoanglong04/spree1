@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   # API
   namespace :api do
     namespace :v1 do
+
       post "auth/login", to: "authentication#login"
+      post "auth/signup", to: "authentication#signup"
       post "auth/logout", to: "authentication#logout"
       post "auth/refresh", to: "authentication#refresh"
       patch "users/update-profile", to: "users#update_profile"
@@ -83,4 +85,5 @@ Rails.application.routes.draw do
                confirmations: 'authentication/confirmations',
                passwords: 'authentication/passwords',
              }
+
 end

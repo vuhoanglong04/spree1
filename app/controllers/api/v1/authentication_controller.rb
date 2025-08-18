@@ -1,10 +1,11 @@
 class Api::V1::AuthenticationController < Api::BaseController
-  skip_before_action :authenticate_api, only: [:login, :refresh]
+  skip_before_action :authenticate_api, only: [:login, :refresh, :signup]
 
   # POST api/v1/auth/login
   def login
     LoginForm.new(email: params[:email], password: params[:password]) # Validation
     user = User.find_by(email: params[:email].strip.downcase)
+    raise ActiveRecord::RecordNotFound, "User not found" if user.blank?
     if user.valid_password?(params[:password])
       sign_in(user)
       token = request.env['warden-jwt_auth.token']
@@ -14,6 +15,27 @@ class Api::V1::AuthenticationController < Api::BaseController
                                                                         refresh_token: refresh_token })
     else
       raise AuthenticationError, "Email or password incorrect"
+    end
+  end
+
+  def signup
+    SignupForm.new(signup_params)
+    user = User.new(signup_params)
+    user.image_url = Faker::Avatar.image
+    user.role_id = 3
+    user.skip_confirmation!
+    if user.save
+      sign_in(user)
+      token = request.env['warden-jwt_auth.token']
+      if token.nil?
+        token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
+      end
+      refresh_token = user.jwt_refresh_tokens.create!.token
+      render_response(status: 201, message: "Signup successful", data: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: UserSerializer),
+                                                                         access_token: token,
+                                                                         refresh_token: refresh_token })
+    else
+      raise ActiveRecord::RecordInvalid, user
     end
   end
 
@@ -40,4 +62,13 @@ class Api::V1::AuthenticationController < Api::BaseController
     end
   end
 
+  private
+
+  def login_params
+    params.permit(:email, :password)
+  end
+
+  def signup_params
+    params.permit(:email, :password, :first_name, :last_name, :phone_number, :date_of_birth, :gender)
+  end
 end

@@ -3,7 +3,7 @@
 require 'faker'
 
 # === Role ===
-%w[Administrator User Staff].each do |role_name|
+%w[Administrator Staff User].each do |role_name|
   Role.find_or_create_by!(name: role_name)
 end
 
