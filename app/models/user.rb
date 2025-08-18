@@ -3,6 +3,7 @@ class User < ApplicationRecord
   # Relationship
   belongs_to :role
   has_many :jwt_refresh_tokens, dependent: :destroy
+  has_many :orders
   # Nested Attribute
 
   # Soft Delete

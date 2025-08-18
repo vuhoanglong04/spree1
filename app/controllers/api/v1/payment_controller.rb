@@ -23,8 +23,8 @@ class Api::V1::PaymentController < Api::BaseController
       payment_method_types: ['card'],
       line_items: items,
       mode: 'payment',
-      success_url: "#{root_url}success",
-      cancel_url: "#{root_url}cancel",
+      success_url: "http://localhost:5173/payment/success",
+      cancel_url: "http://localhost:5173/payment/error",
       payment_intent_data: {
         metadata: { order_id: order_params[:order_id] },
       },

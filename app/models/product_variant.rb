@@ -2,7 +2,7 @@ class ProductVariant < ApplicationRecord
   attr_accessor :default_variant_flag
 
   # Relationship
-  belongs_to :product
+  belongs_to :product, -> { with_deleted }
   belongs_to :size, optional: true
   belongs_to :color, optional: true
 

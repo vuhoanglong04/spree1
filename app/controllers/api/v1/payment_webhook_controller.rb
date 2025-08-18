@@ -31,8 +31,8 @@ class Api::V1::PaymentWebhookController < Api::BaseController
     order_id = session.metadata.order_id
     order = Order.find(order_id)
 
-    if order && order.status == "pending"
-      order.update(status: 'paid' , stripe_payment_id: session.payment_intent)
+    if order && order.status == "unpaid"
+      order.update(status: 'processing', stripe_payment_id: session.payment_intent)
       Rails.logger.info("✅ Order #{order.id} marked as paid")
     else
       Rails.logger.warn("⚠️ Order not found or payment not completed for session #{session.id}")

@@ -1,6 +1,6 @@
 class Api::V1::OrdersController < Api::BaseController
   def index
-    orders = Order.where(user_id: params[:user_id]).page(params[:page]).per(5)
+    orders = Order.where(user_id: current_user.id).order("id desc").page(params[:page]).per(5)
     render_response(data: ActiveModelSerializers::SerializableResource.new(orders, each_serializer: OrderSerializer),
                     status: 200,
                     message: "Get all orders successfully",
@@ -9,7 +9,8 @@ class Api::V1::OrdersController < Api::BaseController
   end
 
   def show
-    order = Order.find(params[:id])
+    order = Order.find_by(id: params[:id])
+    raise ActiveRecord::RecordNotFound if order.nil?
     render_response(data: ActiveModelSerializers::SerializableResource.new(order, serializer: OrderSerializer),
                     status: 200,
                     message: "Get order successfully"
@@ -27,7 +28,10 @@ class Api::V1::OrdersController < Api::BaseController
   end
 
   def update
-
+    order = Order.find_by(id: params[:id])
+    raise AuthorizationError, "Your are not allowed to update this order" if current_user.id != order.user_id
+    raise AuthorizationError, "Cannot cancel order because it is delivering" if params[:status] == "cancelled" && !%w[processing pending].include?(order.status)
+    order.update(status: params[:status])
   end
 
   def order_params

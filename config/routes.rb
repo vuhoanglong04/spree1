@@ -6,7 +6,9 @@ Rails.application.routes.draw do
       post "auth/login", to: "authentication#login"
       post "auth/logout", to: "authentication#logout"
       post "auth/refresh", to: "authentication#refresh"
-      get "auth/testToken", to: "authentication#testToken"
+      patch "users/update-profile", to: "users#update_profile"
+      patch "users/update-avatar", to: "users#update_avatar"
+
       post "payment", to: "payment#create"
       post 'payment/webhook', to: 'payment_webhook#receive'
 
@@ -15,6 +17,8 @@ Rails.application.routes.draw do
       resources :categories, only: [:index, :show]
       resources :wish_lists, only: [:index]
       resources :orders, only: [:index, :create, :update, :show]
+      resources :sizes, only: [:index]
+      resources :colors, only: [:index]
     end
     # namespace :v2 do
     #   resources :products, only: [:index]

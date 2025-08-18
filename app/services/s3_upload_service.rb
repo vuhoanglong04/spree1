@@ -1,7 +1,7 @@
 require "aws-sdk-s3"
 
 class S3UploadService
-  def self.upload(file:, folder:)
+  def self.upload(file, folder)
     bucket = Rails.application.credentials.dig(:aws, :bucket)
     region = Rails.application.credentials.dig(:aws, :region)
     key = File.join(folder, "#{Time.now.utc.strftime("%Y%m%d%H%M%S")}_#{file.original_filename.parameterize}")

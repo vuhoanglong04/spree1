@@ -8,6 +8,10 @@ module ExceptionHandler
       render_response(errors: e.message, status: :unauthorized)
     end
 
+    rescue_from AuthorizationError do |e|
+      render_response(errors: e.message, status: :unauthorized)
+    end
+
     rescue_from ActiveRecord::RecordNotFound do |e|
       render_response(errors: e.message, status: :not_found)
     end
