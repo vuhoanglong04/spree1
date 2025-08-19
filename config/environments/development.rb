@@ -26,8 +26,10 @@ Rails.application.configure do
   end
 
   # Change to :null_store to avoid any caching.
-  config.cache_store = :memory_store
-
+  config.cache_store = :redis_cache_store, {
+    url: 'redis://localhost:6379/0',
+    expires_in: 5.minutes
+  }
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :amazon
 
@@ -72,12 +74,12 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
 
   config.action_mailer.smtp_settings = {
-    address:              'smtp.gmail.com',
-    port:                 587,
-    domain:               'gmail.com',
-    user_name:            ENV['GMAIL_USERNAME'],
-    password:             ENV['GMAIL_APP_PASSWORD'],       # App password 16 ký tự
-    authentication:       'plain',
+    address: 'smtp.gmail.com',
+    port: 587,
+    domain: 'gmail.com',
+    user_name: ENV['GMAIL_USERNAME'],
+    password: ENV['GMAIL_APP_PASSWORD'], # App password 16 ký tự
+    authentication: 'plain',
     enable_starttls_auto: true
   }
 end

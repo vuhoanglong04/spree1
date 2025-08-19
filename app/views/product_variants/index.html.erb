@@ -81,10 +81,10 @@
             <div class="text-sm text-gray-900"><%= variant.sku %></div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <div class="text-sm text-gray-900"><%= variant.size.name %></div>
+            <div class="text-sm text-gray-900"><%= variant.size ? variant.size.name : "" %></div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <div class="text-sm text-gray-900"><%= variant.color.name %></div>
+            <div class="text-sm text-gray-900"><%= variant.color ? variant.color.name : "" %></div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
 

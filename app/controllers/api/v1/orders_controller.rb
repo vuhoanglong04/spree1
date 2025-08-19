@@ -1,10 +1,24 @@
 class Api::V1::OrdersController < Api::BaseController
   def index
-    orders = Order.where(user_id: current_user.id).order("id desc").page(params[:page]).per(5)
-    render_response(data: ActiveModelSerializers::SerializableResource.new(orders, each_serializer: OrderSerializer),
+    page = (params[:page] || "1").to_i
+    per_page = 5
+    base_key = [
+      "orders_page", page,
+    ].compact.join("_")
+
+    cache_key = "#{base_key}_cache"
+
+    cache_result = Rails.cache.fetch(cache_key, expires_in: 10.minute) do
+      orders = Order.where(user_id: current_user.id).order("id desc").page(params[:page]).per(5)
+      {
+        data: ActiveModelSerializers::SerializableResource.new(orders, each_serializer: OrderSerializer),
+        meta: pagination_meta(orders)
+      }
+    end
+    render_response(data: cache_result[:data],
                     status: 200,
                     message: "Get all orders successfully",
-                    meta: orders
+                    meta: cache_result[:meta]
     )
   end
 
@@ -34,6 +48,8 @@ class Api::V1::OrdersController < Api::BaseController
     order.update(status: params[:status])
   end
 
+  private
+
   def order_params
     params.require(:order).permit(
       :user_id,
@@ -54,8 +70,6 @@ class Api::V1::OrdersController < Api::BaseController
       ]
     )
   end
-
-  private
 
   def update_product_variant_stock(order)
     order.order_items.each do |item|

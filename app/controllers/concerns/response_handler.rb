@@ -10,7 +10,7 @@ module ResponseHandler
       status_code: code,
       message: message || default_message(code),
       data: data,
-      meta: !meta.nil? ? pagination_meta(meta) : nil
+      meta: meta
     }
     response_body[:errors] = Array(errors).map(&:to_s) if errors.present?
     render json: response_body.compact, status: http_status

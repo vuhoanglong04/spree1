@@ -253,7 +253,7 @@
             <div>
               <%= form.label :status, "Status", class: "block text-sm font-medium text-gray-700 mb-2" %>
               <%= form.select :status,
-                              [["Unpaid , unpaid"], ["Paid", "paid"], ['Pending', 'pending'], ['Processing', 'processing'], ['Shipped', 'shipped'], ['Delivered', 'delivered'], ['Cancelled', 'cancelled']],
+                              [["Unpaid , unpaid"], ["Paid", "paid"], ['Pending', 'pending'], ['Processing', 'processing'], ['Delivered', 'delivered'], ['Cancelled', 'cancelled']],
                               { selected: @order.status || 'pending' },
                               { class: "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" } %>
             </div>

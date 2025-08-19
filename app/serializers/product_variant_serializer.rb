@@ -1,5 +1,5 @@
 class ProductVariantSerializer < ActiveModel::Serializer
-  attributes :id, :price, :stock, :sku, :image_url, :size, :color
+  attributes :id, :price, :stock, :sku, :image_url, :size, :color, :stripe_price_id
   belongs_to :product
 
   def size

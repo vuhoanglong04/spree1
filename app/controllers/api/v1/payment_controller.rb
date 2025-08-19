@@ -3,19 +3,10 @@ class Api::V1::PaymentController < Api::BaseController
 
   def create
     items = []
-    order_params[:order_items_attributes].each do |item_params|
-      detail_json = JSON.parse(item_params[:detail])
-      name = detail_json[:color].nil? ? detail_json["product_name"] : "#{detail_json["product_name"]}" + "/#{detail_json["color"]}/#{detail_json["size"]}"
+    order_params[:items].each do |item_params|
       items << {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: name,
-            images: [detail_json["image_url"]],
-          },
-          unit_amount: (item_params[:price].to_f * 100).to_i
-        },
-        quantity: item_params[:quantity].to_i
+        price: item_params[:stripe_price_id],
+        quantity: item_params[:quantity],
       }
     end
 
@@ -37,11 +28,9 @@ class Api::V1::PaymentController < Api::BaseController
   def order_params
     params.permit(
       :order_id,
-      order_items_attributes: [
-        :product_variant_id,
+      items: [
+        :stripe_price_id,
         :quantity,
-        :price,
-        :detail
       ]
     )
   end

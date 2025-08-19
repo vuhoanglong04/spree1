@@ -1,4 +1,6 @@
 class Order < ApplicationRecord
+  after_commit :clear_cache
+
   # Relationship
   belongs_to :user, optional: true
   has_many :order_items
@@ -28,6 +30,10 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def clear_cache
+    Rails.cache.delete_matched("orders_")
+  end
 
   def validate_item_presence(item, index)
     if item.product_variant_id.blank? || item.quantity.blank? || item.price.blank?

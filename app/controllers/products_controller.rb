@@ -26,12 +26,10 @@ class ProductsController < ApplicationController
     @product = Product.new(product_params)
     respond_to do |format|
       if @product.save
-        url = S3UploadService.upload(file: product_params[:image_url], folder: "products")
+        url = S3UploadService.upload(product_params[:image_url], "products")
         @product.image_url = url
         @product.save
-        default_variant = ProductVariant.new(product_id: @product.id, stock: params[:product][:stock], price: params[:product][:price], sku: params[:product][:sku], image_url: url)
-        default_variant.default_variant_flag = true
-        default_variant.save!
+        ProductsService.create_variant(@product, stock: params[:product][:stock], sku: params[:product][:sku], price: params[:product][:price])
         format.html { redirect_to products_path, notice: "Product was successfully created." }
         format.json { render :show, status: :created, location: @product }
       else

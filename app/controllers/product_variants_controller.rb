@@ -41,9 +41,10 @@ class ProductVariantsController < ApplicationController
     @product_variant = ProductVariant.new(product_variant_params)
     respond_to do |format|
       if @product_variant.save
-        url = S3UploadService.upload(file: product_variant_params[:image_url], folder: "product_variants")
+        url = S3UploadService.upload(product_variant_params[:image_url], "product_variants")
         @product_variant.image_url = url
         @product_variant.save
+        ProductsService.sync_with_stripe(@product_variant, @product_variant.product.name, @product_variant.product.description)
         format.html { redirect_to product_product_variants_path, notice: "Product variant was successfully created." }
         format.json { render :show, status: :created, location: @product_variant }
       else
@@ -72,7 +73,7 @@ class ProductVariantsController < ApplicationController
     respond_to do |format|
       if @product_variant.update(product_variant_params)
         if product_variant_params[:image_url].present?
-          url = S3UploadService.upload(file: product_variant_params[:image_url], folder: "product_variants")
+          url = S3UploadService.upload(product_variant_params[:image_url], "product_variants")
           @product_variant.image_url = url
           @product_variant.save
         end
@@ -119,6 +120,7 @@ class ProductVariantsController < ApplicationController
   def product_variant_params
     params.require(:product_variant).permit(:id, :product_id, :sku, :price, :stock, :color_id, :size_id, :image_url)
   end
+
   def authorize_user
     authorize current_user
   end
