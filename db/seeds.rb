@@ -130,7 +130,7 @@ variants = ProductVariant.includes(:color, :product) # eager load associations
 
   Order.create!(
     user_id: users.sample,
-    status: %w[pending processing shipped delivered cancelled].sample,
+    status: %w[unpaid paid processing delivered cancelled].sample,
     total_amount: total_amount,
     stripe_payment_id: Faker::Alphanumeric.alphanumeric(number: 20),
     created_at: Faker::Time.backward(days: 30),

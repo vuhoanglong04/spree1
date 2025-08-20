@@ -24,6 +24,6 @@ module Spree
     # config.time_zone = "Central Time (US & Canada)"
     config.active_job.queue_adapter = :sidekiq
     config.eager_load_paths << Rails.root.join("exceptions")
-    config.autoload_paths << Rails.root.join("app/services")
+    # config.autoload_paths << Rails.root.join("app/services")
   end
 end

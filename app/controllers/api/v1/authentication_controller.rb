@@ -27,9 +27,6 @@ class Api::V1::AuthenticationController < Api::BaseController
     if user.save
       sign_in(user)
       token = request.env['warden-jwt_auth.token']
-      if token.nil?
-        token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
-      end
       refresh_token = user.jwt_refresh_tokens.create!.token
       render_response(status: 201, message: "Signup successful", data: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: UserSerializer),
                                                                          access_token: token,
@@ -42,8 +39,7 @@ class Api::V1::AuthenticationController < Api::BaseController
   def logout
     token = request.headers['Authorization']&.split(' ')&.last
     payload = Warden::JWTAuth::TokenDecoder.new.call(token)
-    jti = payload['jti']
-    JwtDenyList.create!(jti: jti, exp: payload['exp'])
+    JwtRedisDenylist.revoke_jwt(payload, current_user)
     sign_out(current_user)
     render_response(status: 200, message: "Logout successful")
   end
@@ -52,7 +48,6 @@ class Api::V1::AuthenticationController < Api::BaseController
     refresh_token = JwtRefreshToken.find_by(token: params[:refresh_token])
     if refresh_token && DateTime.now < refresh_token.expired_at
       user = User.find(refresh_token.user_id)
-      token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)[0]
       sign_in(user)
       refresh_token.destroy!
       refresh_token = user.jwt_refresh_tokens.create!.token

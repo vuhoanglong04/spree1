@@ -1,5 +1,4 @@
 class Api::V1::PaymentController < Api::BaseController
-  skip_before_action :authenticate_api
 
   def create
     items = []
