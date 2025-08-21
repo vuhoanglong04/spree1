@@ -8,7 +8,8 @@ class Api::V1::AuthenticationController < Api::BaseController
     raise ActiveRecord::RecordNotFound, "User not found" if user.blank?
     if user.valid_password?(params[:password])
       sign_in(user)
-      token = request.env['warden-jwt_auth.token']
+      jwt_payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
+      token = jwt_payload[0]
       refresh_token = user.jwt_refresh_tokens.create!.token
       render_response(status: 201, message: "Login successful", data: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: UserSerializer),
                                                                         access_token: token,

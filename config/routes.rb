@@ -84,6 +84,7 @@ Rails.application.routes.draw do
                registrations: 'authentication/registrations',
                confirmations: 'authentication/confirmations',
                passwords: 'authentication/passwords',
+               omniauth_callbacks: 'authentication/omniauth_callbacks'
              }
 
 end
