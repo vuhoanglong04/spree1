@@ -18,6 +18,7 @@ class User < ApplicationRecord
          :trackable,
          :confirmable,
          :jwt_authenticatable,
+         :omniauthable, omniauth_providers: [:google_oauth2],
          jwt_revocation_strategy: JwtRedisDenylist
 
   # Validation
@@ -37,5 +38,13 @@ class User < ApplicationRecord
 
   def has_permission?(subject, action)
     role.permissions.exists?(subject: subject, action: action)
+  end
+
+  def self.from_omniauth(auth)
+    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
+      user.email = auth.info.email
+      user.password = Devise.friendly_token[0, 20]
+      user.image_url = auth.info.image
+    end
   end
 end

@@ -27,10 +27,7 @@ class Authentication::SessionsController < Devise::SessionsController
       flash[:alert] = "Please check your email to confirm your account"
       redirect_to new_session_path(resource_name), status: :see_other and return
     end
-    if resource.role == 1
-      flash[:alert] = "You are not permitted"
-      redirect_to new_session_path(resource_name), status: :see_other and return
-    end
+
     set_flash_message!(:notice, :signed_in)
     sign_in(resource_name, resource)
     yield resource if block_given?
