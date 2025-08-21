@@ -104,3 +104,4 @@ gem 'elasticsearch-model'
 
 gem 'elasticsearch-rails'
 
+gem 'pg'
