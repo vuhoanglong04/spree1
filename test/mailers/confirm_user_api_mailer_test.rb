@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JwtDenylistTest < ActiveSupport::TestCase
+class ConfirmUserApiMailerTest < ActionMailer::TestCase
   # test "the truth" do
   #   assert true
   # end

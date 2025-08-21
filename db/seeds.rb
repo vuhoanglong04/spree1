@@ -1,13 +1,13 @@
-# # db/seeds.rb
+# db/seeds.rb
 
 require 'faker'
 
-# === Role ===
+# === Roles ===
 %w[Administrator Staff User].each do |role_name|
   Role.find_or_create_by!(name: role_name)
 end
 
-# === Permission ===
+# === Permissions ===
 actions = %w[index create update delete restore force_delete authorize]
 subjects = %w[users products categories]
 permissions = subjects.product(actions).map { |subject, action| { subject: subject, action: action } }
@@ -34,8 +34,9 @@ User.create!(
   confirmed_at: Time.now,
   role_id: Role.pluck(:id).sample,
   image_url: Faker::Avatar.image,
-  date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65),
+  date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 65)
 )
+
 20.times do
   User.create!(
     first_name: Faker::Name.first_name,
@@ -61,45 +62,48 @@ end
   )
 end
 
+# === Sizes ===
+sizes = 50.times.map do |i|
+  Size.find_or_create_by!(name: "Size#{i + 1}")
+end
+
+# === Colors ===
+colors = 50.times.map do |i|
+  Color.find_or_create_by!(name: "Color#{i + 1}", hex_code: Faker::Color.hex_color)
+end
+
 # === Products ===
-10.times do
+products = 200.times.map do
   Product.create!(
     name: Faker::Commerce.product_name,
     description: Faker::Lorem.paragraph,
     brand: Faker::Company.name,
     category_id: Category.pluck(:id).sample,
-    image_url: Faker::Avatar.image,
+    image_url: Faker::LoremFlickr.image(size: "300x300", search_terms: ['product']),
   )
-end
-
-# === Colors ===
-10.times do
-  Color.create!(
-    name: Faker::Color.color_name + rand(999).to_s,
-    hex_code: Faker::Color.hex_color
-  )
-end
-
-# === Sizes ===
-%w[XS S M L XL].each do |size_name|
-  Size.find_or_create_by!(name: size_name)
 end
 
 # === Product Variants ===
-10.times do
+# Create 300+ variants with random size/color combinations
+300.times do
+  product = products.sample
+  size = sizes.sample
+  color = colors.sample
+
   ProductVariant.create!(
-    product_id: Product.pluck(:id).sample,
-    size_id: Size.pluck(:id).sample,
-    color_id: Color.pluck(:id).sample,
+    product_id: product.id,
+    size_id: size.id,
+    color_id: color.id,
     price: Faker::Commerce.price(range: 10.0..100.0),
     stock: rand(10..100),
     sku: Faker::Alphanumeric.alphanumeric(number: 10).upcase,
-    image_url: Faker::Avatar.image,
+    image_url: Faker::LoremFlickr.image(size: "200x200", search_terms: ['variant'])
   )
 end
-# db/seeds.rb
+
+# === Orders ===
 users = User.pluck(:id)
-variants = ProductVariant.includes(:color, :product) # eager load associations
+variants = ProductVariant.includes(:color, :size, :product) # eager load associations
 
 10.times do
   items_count = rand(1..5)
@@ -145,12 +149,10 @@ variants = ProductVariant.includes(:color, :product) # eager load associations
   )
 end
 
+# === WishLists ===
 10.times do
-  WishList.create!([
-                     {
-                       user_id: User.pluck(:id).sample,
-                       product_id: Product.pluck(:id).sample
-                     }
-                   ])
+  WishList.create!(
+    user_id: users.sample,
+    product_id: products.sample.id
+  )
 end
-
