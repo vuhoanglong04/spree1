@@ -1,7 +1,7 @@
 class Api::V1::OrdersController < Api::BaseController
   def index
     page = (params[:page] || "1").to_i
-    per_page = 5
+    per_page = params[:page]
     base_key = [
       "orders_page", page,
     ].compact.join("_")
@@ -9,9 +9,12 @@ class Api::V1::OrdersController < Api::BaseController
     cache_key = "#{base_key}_cache"
 
     cache_result = Rails.cache.fetch(cache_key, expires_in: 10.minute) do
-      orders = Order.where(user_id: current_user.id).order("id desc").page(params[:page]).per(5)
+      orders = Order.where(user_id: current_user.id).order("id desc").page(params[:page]).per(per_page)
       {
-        data: ActiveModelSerializers::SerializableResource.new(orders, each_serializer: OrderSerializer),
+        data: ActiveModelSerializers::SerializableResource.new(
+          orders,
+          each_serializer: OrderSerializer
+        ).as_json,
         meta: pagination_meta(orders)
       }
     end

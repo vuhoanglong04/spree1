@@ -20,9 +20,9 @@ services:
   stripe-cli:
     image: stripe/stripe-cli:latest
     container_name: my_stripe_cli
-    entrypoint: [ "stripe", "listen", "--forward-to", "http://localhost:3000/api/v1/payment/webhook" ]
+    command: listen --forward-to http://host.docker.internal:3000/api/v1/payment/webhook --print-secret
     environment:
-      - STRIPE_API_KEY=
+      - STRIPE_API_KEY=sk_test_51RvYgS1o4knBBtYK3q6v24HVvBnF9aEZUk3ZVRK097kJRY97JJUR1Rn5wUk0Dr7kr31Cvn26fhcWso7OfuJQJrME00DXst4eBj
     ports:
       - "12111:12111"
     restart: unless-stopped
