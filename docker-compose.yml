@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis
+    container_name: my_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:9.1.0
+    container_name: my_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: unless-stopped
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: my_stripe_cli
+    entrypoint: [ "stripe", "listen", "--forward-to", "http://localhost:3000/api/v1/payment/webhook" ]
+    environment:
+      - STRIPE_API_KEY=
+    ports:
+      - "12111:12111"
+    restart: unless-stopped

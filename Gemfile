@@ -96,4 +96,11 @@ gem 'rack-cors', require: 'rack/cors'
 
 gem 'sidekiq'
 
+gem 'sidekiq-cron'
+
 gem 'redis'
+
+gem 'elasticsearch-model'
+
+gem 'elasticsearch-rails'
+

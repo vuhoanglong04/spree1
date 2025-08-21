@@ -3,38 +3,135 @@ class Api::V1::ProductsController < Api::BaseController
 
   def index
     page = (params[:page] || 1).to_i
-    per_page = 5
+    per_page = 100
 
     # Optional filters
     category_id = params[:category_id]
-    search_name = params[:name]
+    search_name = params[:search_name]
     min_price = params[:min_price]
     max_price = params[:max_price]
+    color_ids = params[:color_ids]&.map(&:to_i)
+    size_ids = params[:size_ids]&.map(&:to_i)
+    sort_order = params[:sorted] || "asc"
 
-    # Build unique cache key based on page and filters
+    # Build Elasticsearch query
+    query = {
+      bool: {
+        must: [],
+        filter: []
+      }
+    }
+
+    # Filter by category
+    query[:bool][:filter] << { term: { category_id: category_id.to_i } } if category_id.present?
+
+    # Filter by product name (full-text match)
+    if search_name.present?
+      query[:bool][:must] << {
+        query_string: {
+          default_field: "name",
+          query: "*#{search_name}*"
+        }
+      }
+    end
+
+    # Filter by nested product_variants.price
+    if min_price || max_price
+      range_filter = {}
+      range_filter[:gte] = min_price.to_f if min_price
+      range_filter[:lte] = max_price.to_f if max_price
+
+      query[:bool][:filter] << {
+        nested: {
+          path: "product_variants",
+          query: { range: { "product_variants.price": range_filter } }
+        }
+      }
+    end
+    # Filter by nested color_ids or size_ids
+    if color_ids&.any? || size_ids&.any?
+      variant_should = []
+
+      # Nested color filter inside product_variants
+      if color_ids&.any?
+        variant_should << {
+          nested: {
+            path: "product_variants.color",
+            query: {
+              terms: { "product_variants.color.id": color_ids.map(&:to_i) }
+            },
+            score_mode: "max"
+          }
+        }
+      end
+
+      # Nested size filter inside product_variants
+      if size_ids&.any?
+        variant_should << {
+          nested: {
+            path: "product_variants.size",
+            query: {
+              terms: { "product_variants.size.id": size_ids.map(&:to_i) }
+            },
+            score_mode: "max"
+          }
+        }
+      end
+
+      # Wrap in a product_variants nested query
+      query[:bool][:filter] << {
+        nested: {
+          path: "product_variants",
+          query: {
+            bool: {
+              should: variant_should,
+              minimum_should_match: 1
+            }
+          },
+          score_mode: "max"
+        }
+      }
+    end
+
+
+    # Build unique cache key
     base_key = [
       "products_page", page,
       ("category_#{category_id}" if category_id),
       ("name_#{search_name}" if search_name),
       ("min_#{min_price}" if min_price),
-      ("max_#{max_price}" if max_price)
+      ("max_#{max_price}" if max_price),
+      ("colors_#{color_ids.join('-')}" if color_ids&.any?),
+      ("sizes_#{size_ids.join('-')}" if size_ids&.any?),
+      ("sorted_#{sort_order}")
     ].compact.join("_")
 
     cache_key = "#{base_key}_cache"
 
-    # Cache both data and meta in a single fetch
-    cached_result = Rails.cache.fetch(cache_key) do
-      products = Product.without_deleted
-      products = products.where(category_id: category_id) if category_id
-      products = products.where("name ILIKE ?", "%#{search_name}%") if search_name
-      products = products.where("price >= ?", min_price.to_f) if min_price
-      products = products.where("price <= ?", max_price.to_f) if max_price
+    # Fetch from cache or Elasticsearch
+    cached_result = Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+      result = Product.search(
+        {
+          query: query,
+          from: (page - 1) * per_page,
+          size: per_page,
+          sort: [
+            {
+              "product_variants.price": {
+                order: sort_order,
+                mode: "min", # sorts by the min price of variants
+                nested: { path: "product_variants" }
+              }
+            }
+          ]
+        }
+      )
 
-      paginated = products.page(page).per(per_page)
+      products = result.records
 
       {
-        data: ActiveModelSerializers::SerializableResource.new(paginated, each_serializer: ProductsSerializer).as_json,
-        meta: pagination_meta(paginated)
+        data: ActiveModelSerializers::SerializableResource.new(products, each_serializer: ProductsSerializer).as_json,
+        meta: elasticsearch_pagination_meta(page, per_page, result.response['hits']['total']['value'])
       }
     end
 

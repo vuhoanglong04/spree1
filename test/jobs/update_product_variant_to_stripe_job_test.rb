@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JwtDenyListTest < ActiveSupport::TestCase
+class UpdateProductVariantToStripeJobTest < ActiveJob::TestCase
   # test "the truth" do
   #   assert true
   # end

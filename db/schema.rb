@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_19_013540) do
   create_table "categories", force: :cascade do |t|
     t.string "name"
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "parent_id"
+    t.string "image_url"
     t.index ["parent_id"], name: "index_categories_on_parent_id"
   end
 
@@ -28,31 +29,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "jwt_deny_lists", force: :cascade do |t|
-    t.string "jti"
-    t.datetime "expired_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["jti"], name: "index_jwt_deny_lists_on_jti"
-    t.index ["user_id"], name: "index_jwt_deny_lists_on_user_id"
-  end
-
-  create_table "jwt_denylists", force: :cascade do |t|
-    t.string "jti"
-    t.datetime "exp"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["jti"], name: "index_jwt_denylists_on_jti"
-  end
-
   create_table "jwt_refresh_tokens", force: :cascade do |t|
-    t.string "jti"
-    t.datetime "expired_at"
+    t.string "token", null: false
+    t.datetime "expired_at", null: false
+    t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["jti"], name: "index_jwt_refresh_tokens_on_jti"
+    t.index ["expired_at"], name: "index_jwt_refresh_tokens_on_expired_at"
+    t.index ["token"], name: "index_jwt_refresh_tokens_on_token", unique: true
     t.index ["user_id"], name: "index_jwt_refresh_tokens_on_user_id"
   end
 
@@ -73,6 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
     t.decimal "price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "detail"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_variant_id"], name: "index_order_items_on_product_variant_id"
   end
@@ -93,18 +78,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
-  create_table "payments", force: :cascade do |t|
-    t.integer "order_id", null: false
-    t.integer "user_id", null: false
-    t.decimal "amount"
-    t.string "status"
-    t.string "stripe_charge_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["order_id"], name: "index_payments_on_order_id"
-    t.index ["user_id"], name: "index_payments_on_user_id"
-  end
-
   create_table "permissions", force: :cascade do |t|
     t.string "action"
     t.string "subject"
@@ -123,6 +96,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
     t.datetime "updated_at", null: false
     t.string "image_url"
     t.datetime "deleted_at"
+    t.string "stripe_product_id"
+    t.string "stripe_price_id"
     t.index ["color_id"], name: "index_product_variants_on_color_id"
     t.index ["product_id"], name: "index_product_variants_on_product_id"
     t.index ["size_id"], name: "index_product_variants_on_size_id"
@@ -211,12 +186,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034158) do
   end
 
   add_foreign_key "categories", "categories", column: "parent_id"
+  add_foreign_key "jwt_refresh_tokens", "users"
   add_foreign_key "messages", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "product_variants"
   add_foreign_key "orders", "users"
-  add_foreign_key "payments", "orders"
-  add_foreign_key "payments", "users"
   add_foreign_key "product_variants", "colors"
   add_foreign_key "product_variants", "products"
   add_foreign_key "product_variants", "sizes"

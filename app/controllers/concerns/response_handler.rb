@@ -38,5 +38,19 @@ module ResponseHandler
       is_last_page: collection.last_page?
     }
   end
+  def elasticsearch_pagination_meta(page, per_page, total_count)
+    total_pages = (total_count / per_page.to_f).ceil
+
+    {
+      current_page: page,
+      next_page: page < total_pages ? page + 1 : nil,
+      prev_page: page > 1 ? page - 1 : nil,
+      total_pages: total_pages,
+      total_count: total_count,
+      per_page: per_page,
+      is_first_page: page == 1,
+      is_last_page: page >= total_pages
+    }
+  end
 
 end

@@ -18,7 +18,7 @@ class User < ApplicationRecord
          :trackable,
          :confirmable,
          :jwt_authenticatable,
-         jwt_revocation_strategy: JwtDenyList
+         jwt_revocation_strategy: JwtRedisDenylist
 
   # Validation
   validates :first_name, presence: true

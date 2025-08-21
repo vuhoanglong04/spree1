@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JwtDenylistTest < ActiveSupport::TestCase
+class DeleteExpiredRefreshTokenJobTest < ActiveJob::TestCase
   # test "the truth" do
   #   assert true
   # end

@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 # Assuming you have not yet modified this file, each configuration option below
 # is set to its default value. Note that some are commented out while others
 # are not: uncommented lines are intended to protect your configuration from
@@ -311,13 +310,11 @@ Devise.setup do |config|
   # config.sign_in_after_change_password = true
   config.jwt do |jwt|
     jwt.secret = Rails.application.credentials.fetch(:devise_jwt_secret_key)
-    jwt.dispatch_requests = [
-      ['POST', %r{^/api/v1/auth/login$}]
-    ]
-    jwt.revocation_requests = [['POST', %r{^/api/v1/auth/logout$}]]
+    jwt.dispatch_requests = []
+    jwt.revocation_requests = []
     jwt.expiration_time = 15.minutes
     jwt.request_formats = {
-      user: [:json] # bắt buộc nếu bạn đang dùng API JSON
+      user: [:json]
     }
   end
 
